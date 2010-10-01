@@ -1,16 +1,28 @@
 <html>
 <head>
 	<title>JavaScript FPS Demo</title>
+	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<script type="text/javascript" src="js/vector3d.js"></script>
+	<script type="text/javascript" src="js/color.js"></script>
 	<script type="text/javascript" src="js/js3d.js"></script>
+	<script type="text/javascript" src="js/data.js"></script>
 </head>
 <body>
+	Resolution:
+	<select id="resolution">
+		<option value="320,240">320x240 (QVGA)</option>
+		<option value="640,480" selected="yes">640x480 (VGA)</option>
+		<option value="800,600">800x600 (SVGA)</option>
+		<option value="1024,768">1024x768 (XGA)</option>
+		<option value="1280,720">1280x720 (720i)</option>
+		<option value="1920,1080">1920x1080 (1080i)</option>
+	</select>
+	Frame Stats: <span id="status"></span>
+	<br>
 	<canvas id="canvas" width="640" height="480">
 		<p>You must use a browser that supports native Canvas tags. Please use IE9 or later.</p>
 	</canvas>
-	<script type="text/javascript">
-		main();
-	</script>
+	<br>
 </body>
 </html>
