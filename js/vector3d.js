@@ -22,9 +22,28 @@ Vector3D.prototype =
 	{
 		return new Vector3D(this.x * b.x, this.y * b.y, this.z * b.z);
 	},
+	invert: function(b)
+	{
+		this.x *= -1;
+		this.y *= -1;
+		this.z *= -1;
+		return this;
+	},
 	length: function()
 	{
-		return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+	},
+	lengthSquared: function()
+	{
+		return this.x * this.x + this.y * this.y + this.z * this.z;
+	},
+	normalize: function()
+	{
+		var l = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+		this.x /= l;
+		this.y /= l;
+		this.z /= l;
+		return this;
 	},
 	dot: function(b)
 	{
@@ -47,5 +66,19 @@ Vector3D.prototype =
 		if(theta < -1) return Math.acos(-1);
 		if(theta > 1) return Math.acos(1);
 		return Math.acos(theta);
+	},
+	distanceFrom: function(b)
+	{
+		var dx = b.x - this.x, dy = b.y - this.y, dz = b.z - this.z;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	},
+	yRotate: function(a)
+	{
+		var sinA = Math.sin(a);
+		var cosA = Math.cos(a);
+		var v = {x: this.x, y: this.y, z: this.z};
+		this.x = v.x * cosA - v.z * sinA;
+		this.z = v.x * sinA + v.z * cosA;
+		return this;
 	}
 };
