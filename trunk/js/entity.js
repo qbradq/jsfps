@@ -7,6 +7,15 @@ function Entity(x, y, rot, model)
 }
 Entity.prototype =
 {
+	rotate: function(amount)
+	{
+		this.rot += amount;
+	},
+	move: function(x, y)
+	{
+		this.x += x;
+		this.y += y;
+	},
 	render: function()
 	{
 		var points = [];
@@ -15,7 +24,7 @@ Entity.prototype =
 		// Apply rotation and translation to all points
 		for(i = 0; i < this.model.points.length; ++i)
 		{
-			points[i] = this.model.points[i].yRotate(this.rot);
+			points[i] = this.model.points[i].yRotate(-this.rot);
 			points[i].x += this.x;
 			points[i].z += this.y;
 		}
@@ -31,4 +40,3 @@ Entity.prototype =
 		}
 	}
 };
-

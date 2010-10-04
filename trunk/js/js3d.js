@@ -138,14 +138,16 @@ var js3d =
 		{
 			t = this.rasterList[i];
 			this.context.fillStyle = 'rgb(' + t.color.r + ',' + t.color.g + ',' + t.color.b + ')';
-			//this.context.strokeStyle = this.context.fillStyle;
+			if(config.fillSeams)
+				this.context.strokeStyle = this.context.fillStyle;
 			this.context.beginPath();
 			this.context.moveTo(t.v1.x, t.v1.y);
 			this.context.lineTo(t.v2.x, t.v2.y);
 			this.context.lineTo(t.v3.x, t.v3.y);
 			this.context.lineTo(t.v1.x, t.v1.y);
 			this.context.fill();
-			//this.context.stroke();
+			if(config.fillSeams)
+				this.context.stroke();
 		}
 		this.rasterList = [];
 		this.trianglesProcessed = 0;
@@ -210,10 +212,15 @@ var js3d =
 		if(firstPass)
 			zIndex += 10000;
 
-		// Linear attenuation
+		/*// Linear attenuation
 		var distance = centroid.length();
 		var lightLevel = 1 / distance;
-		lightLevel *= 10;
+		lightLevel *= 10;*/
+		
+		var distance = centroid.length();
+		var lightLevel = 1 - distance / this.farClip;
+		if(lightLevel < 0)
+			lightLevel = 0;
 
 		// Diffuse lighting, 30%
 		var normal = v3.subtract(centroid).cross(v1.subtract(centroid)).normalize();
@@ -221,7 +228,7 @@ var js3d =
 		var cosAngle = normal.dot(lightAngle);
 		lightLevel = (lightLevel * .7) + (lightLevel * .3) * cosAngle;
 
-		// Far clip falloff
+		/*// Far clip falloff
 		var diff;
 		if(distance >= this.farClipFalloff)
 		{
@@ -229,7 +236,7 @@ var js3d =
 			if(diff < 0)
 				diff = 0;
 			lightLevel *= diff / this.farClipFalloffLength;
-		}
+		}*/
 		
 		// Scale the color value
 		color = new Color(color.r, color.g, color.b);

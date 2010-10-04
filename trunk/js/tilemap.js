@@ -7,6 +7,22 @@ function TileMap(data)
 TileMap.prototype =
 {
 	pvs: null,
+	// Accessor method, determine if a world coordinate is in a wall tile
+	isPointInWall: function(x, y)
+	{
+		return this.isWall(Math.floor(x / 10), Math.floor(y / 10));
+	},
+	// Accessor method, determine if the location is a wall tile
+	isWall: function(x, y)
+	{
+		if(x < 0 ||
+			y < 0 ||
+			x >= this.width ||
+			y >= this.height ||
+			this.tiles[y * this.width + x] <= 0)
+			return false;
+		return true;
+	},
 	// Render the map from the current camera location
 	render: function()
 	{

@@ -76,24 +76,31 @@ var V = function(x, y, z)
 }
 var models =
 {
+	player:
+	{
+		points: [
+			V(0,-5,-1),
+			V(0.5,-6,-4),	V(-0.5,-6,-4)
+		],
+		faces: [
+			Color.blue,0,1,2
+		],
+		bounds: new BoundingBox(-2.5, -2.5, 5, 5)
+	},
 	pyramidar:
 	{
 		points: [
 			V(-4,0,4),		V(-4,0,-4),		V(4,0,-4),		V(4,0,4),
 			V(0,-4,0),
 			V(-2,-6,2),		V(-2,-6,-2),	V(2,-6,-2),		V(2,-6,2),
-			V(0,-8,0),
-			V(-3,-6,4),		V(-2,-6,4),		V(-2.7,-7,4),
-			V(3,-6,4),		V(2,-6,4),		V(2.7,-7,4)
+			V(0,-8,0)
 		],
 		faces: [
 			Color.green,0,1,4,		Color.green,1,2,4,		Color.green,2,3,4,		Color.green,3,0,4,
 			Color.green,6,5,4,		Color.green,7,6,4,		Color.green,8,7,4,		Color.green,5,8,4,
-			Color.green,5,6,9,		Color.green,6,7,9,		Color.green,7,8,9,		Color.green,8,5,9,
-			Color.blue,10,11,12,	Color.blue,13,14,15
+			Color.green,5,6,9,		Color.green,6,7,9,		Color.green,7,8,9,		Color.red,8,5,9
 		],
-		color: new Color(0, 255, 0)
+		bounds: new BoundingBox(-3, -3, 6, 6)
 	}
 };
 delete(V);
-
