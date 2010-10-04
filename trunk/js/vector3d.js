@@ -72,13 +72,17 @@ Vector3D.prototype =
 		var dx = b.x - this.x, dy = b.y - this.y, dz = b.z - this.z;
 		return Math.sqrt(dx * dx + dy * dy + dz * dz);
 	},
-	yRotate: function(a)
+	yRotate: function(a, out)
 	{
+		if(!out)
+			out = new Vector3D(0, 0, 0);
+		var x = this.x, y = this.y, z = this.z;
 		var sinA = Math.sin(a);
 		var cosA = Math.cos(a);
-		var v = {x: this.x, y: this.y, z: this.z};
-		this.x = v.x * cosA - v.z * sinA;
-		this.z = v.x * sinA + v.z * cosA;
-		return this;
+		out.x = x * cosA - z * sinA;
+		out.y = y;
+		out.z = x * sinA + z * cosA;
+		return out;
 	}
 };
+
