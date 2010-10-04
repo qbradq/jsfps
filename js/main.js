@@ -105,9 +105,13 @@ function renderScene()
 	var frameStartTime = new Date().getTime();
 	
 	js3d.clear();
-	map.render();
+	if(config.highRes)
+		map.renderHighRes();
+	else
+		map.render();
 	var ent = new Entity(50, -20, Math.PI, models.pyramidar);
-	ent.render(); 
+	ent.render();
+	player.render();
 
 	var triangleStats = "Processed " + js3d.trianglesProcessed + " Projected " + js3d.trianglesRasterized + " Drawn " + js3d.trianglesDrawn;
 	js3d.finishFrame();

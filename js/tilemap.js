@@ -112,6 +112,119 @@ TileMap.prototype =
 			}
 		}
 	},
+	// Render the map from the current camera location, now with 150% more
+	// triangles!
+	renderHighRes: function()
+	{
+		var v1 = new Vector3D(0, 0, 0);
+		var v2 = new Vector3D(0, 0, 0);
+		var v3 = new Vector3D(0, 0, 0);
+		var v4 = new Vector3D(0, 0, 0);
+		var v5 = new Vector3D(0, 0, 0);
+		var colorWall = new Color(16, 16, 224);
+		var colorFloor = new Color(128, 128, 128);
+		var dataOfs = 0;
+		var o, ix, iy, tile;
+
+		// Calculate the Potentially Visibile Set (PVS) and apply optimizations
+		this.calculatePVS();
+
+		// Now render every tile in the PVS
+		for(o in this.pvs)
+		{
+			ix = this.pvs[o].x;
+			iy = this.pvs[o].y;
+			dataOfs = iy * this.width + ix;
+
+			// Floor and ceiling
+			if(this.tiles[dataOfs] == 0)
+			{
+				v1.x = v3.x = ix * 10;
+				v2.x = v4.x = v1.x + 10;
+				v3.z = v4.z = iy * -10;
+				v1.z = v2.z = v3.z - 10;
+				v5.x = v1.x + 5;
+				v5.z = v3.z - 5;
+				v1.y = v2.y = v3.y = v4.y = v5.y = 0;
+				js3d.projectTriangle(colorFloor, v1, v2, v5, true);
+				js3d.projectTriangle(colorFloor, v2, v4, v5, true);
+				js3d.projectTriangle(colorFloor, v4, v3, v5, true);
+				js3d.projectTriangle(colorFloor, v3, v1, v5, true);
+				v1.y = v2.y = v3.y = v4.y = v5.y = -10;
+				js3d.projectTriangle(colorFloor, v2, v1, v5, true);
+				js3d.projectTriangle(colorFloor, v4, v2, v5, true);
+				js3d.projectTriangle(colorFloor, v3, v4, v5, true);
+				js3d.projectTriangle(colorFloor, v1, v3, v5, true);
+			}
+			else
+			{
+				// South-facing wall
+				if(iy < this.height - 1 &&
+					this.tiles[dataOfs + this.width] == 0)
+				{
+					v1.x = v3.x = ix * 10;
+					v2.x = v4.x = v1.x + 10;
+					v1.y = v2.y = 0;
+					v3.y = v4.y = -10;
+					v5.x = v1.x + 5;
+					v5.y = - 5;
+					v1.z = v2.z = v3.z = v4.z = v5.z = iy * -10 - 10;
+					js3d.projectTriangle(colorWall, v1, v2, v5);
+					js3d.projectTriangle(colorWall, v2, v4, v5);
+					js3d.projectTriangle(colorWall, v4, v3, v5);
+					js3d.projectTriangle(colorWall, v3, v1, v5);
+				}
+				// North-facing wall
+				if(iy > 0 &&
+					this.tiles[dataOfs - this.width] == 0)
+				{
+					v1.x = v3.x = ix * 10;
+					v2.x = v4.x = v1.x + 10;
+					v1.y = v2.y = 0;
+					v3.y = v4.y = -10;
+					v5.x = v1.x + 5;
+					v5.y = - 5;
+					v1.z = v2.z = v3.z = v4.z = v5.z = iy * -10;
+					js3d.projectTriangle(colorWall, v2, v1, v5);
+					js3d.projectTriangle(colorWall, v4, v2, v5);
+					js3d.projectTriangle(colorWall, v3, v4, v5);
+					js3d.projectTriangle(colorWall, v1, v3, v5);
+				}
+				// East-facing wall
+				if(ix > 0 &&
+					this.tiles[dataOfs - 1] == 0)
+				{
+					v1.x = v2.x = v3.x = v4.x = v5.x = ix * 10;
+					v2.z = v4.z = iy * -10;
+					v1.z = v3.z = v2.z - 10;
+					v1.y = v2.y = 0;
+					v3.y = v4.y = -10;
+					v5.z = v2.z - 5;
+					v5.y = -5;
+					js3d.projectTriangle(colorWall, v2, v1, v5);
+					js3d.projectTriangle(colorWall, v4, v2, v5);
+					js3d.projectTriangle(colorWall, v3, v4, v5);
+					js3d.projectTriangle(colorWall, v1, v3, v5);
+				}
+				// West-facing wall
+				if(ix < this.width - 1 &&
+					this.tiles[dataOfs + 1] == 0)
+				{
+					v1.x = v2.x = v3.x = v4.x = v5.x = ix * 10 + 10;
+					v2.z = v4.z = iy * -10;
+					v1.z = v3.z = v2.z - 10;
+					v1.y = v2.y = 0;
+					v3.y = v4.y = -10;
+					v5.z = v2.z - 5;
+					v5.y = -5;
+					js3d.projectTriangle(colorWall, v1, v2, v5);
+					js3d.projectTriangle(colorWall, v2, v4, v5);
+					js3d.projectTriangle(colorWall, v4, v3, v5);
+					js3d.projectTriangle(colorWall, v3, v1, v5);
+				}
+			}
+		}
+	},
 	// Calculate the Potentially Visible Set of tiles
 	calculatePVS: function()
 	{

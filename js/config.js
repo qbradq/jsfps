@@ -4,6 +4,7 @@ var config =
 	{
 		$("#resolution").change(this.resolutionChange);
 		$("#fillSeams").change(this.fillSeamsChange);
+		$("#highRes").change(this.highResChange);
 		$("#mouseSpeed").change(this.mouseSpeedChange);
 		this.updateUI();
 	},
@@ -14,6 +15,10 @@ var config =
 	fillSeamsChange: function(e)
 	{
 		config.fillSeams = $("#fillSeams").val() == "yes";
+	},
+	highResChange: function(e)
+	{
+		config.highRes = $("#highRes").val() == "yes";
 	},
 	resolutionChange: function(e)
 	{
@@ -38,11 +43,16 @@ var config =
 			$("#fillSeams")[0].selectedIndex = 1;
 		else
 			$("#fillSeams")[0].selectedIndex = 0;
+		if(this.highRes)
+			$("#highRes")[0].selectedIndex = 1;
+		else
+			$("#highRes")[0].selectedIndex = 0;
 		$("#mouseSpeed")[0].selectedIndex = this.mouseSpeed / 2 - 1;
 	},
 	width: 640,
 	height: 480,
 	fillSeams: false,
+	highRes: true,
 	mouseSpeed: 8,
 	keyBindings:
 	{
