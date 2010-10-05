@@ -10,7 +10,7 @@ TileMap.prototype =
 	// Accessor method, determine if a world coordinate is in a wall tile
 	isPointInWall: function(x, y)
 	{
-		return this.isWall(Math.floor(x / 10), Math.floor(y / 10));
+		return this.isWall((x / 10) | 0, (y / 10) | 0);
 	},
 	// Accessor method, determine if the location is a wall tile
 	isWall: function(x, y)
@@ -304,6 +304,141 @@ TileMap.prototype =
 				this.pvs[ix + "x" + iy] = {x: ix, y: iy, tile: this.tiles[iy * this.width + ix]};
 			}
 		}
+	},
+	// Trace a line segment through the map and return where it hit a wall,
+	// if ever, in an output variable.
+	lineHitsWall: function(x1, y1, x2, y2, out)
+	{
+		var ix, iy, tx, ty, hit, dx, dy, vertical, m, b;
+		
+		// Line formula variables
+		if(x2 - x1 == 0)
+		{
+			vertical = true;
+		}
+		else
+		{
+			m = (y2 - y1) / (x2 - x1);
+			b = y1 - m * x1;
+		}
+		
+		// Trace the east / west wall intercepts
+		hit = false;
+		if(x1 < x2 &&
+			!vertical)
+		{
+			for(ix = x1 % 10 == 0 ? x1 : (x1 + (10 - Math.abs(x1) % 10)) | 0; ix <= x2; ix += 10)
+			{
+				tx = (ix / 10) | 0;
+				iy = m * ix + b;
+				ty = -((iy / 10) | 0);
+				if(tx < 0 ||
+					ty < 0 ||
+					tx >= this.width ||
+					ty >= this.width ||
+					this.tiles[ty * this.width + tx] > 0)
+				{
+					out.x = ix;
+					out.y = iy;
+					out.dir = "E";
+					hit = true;
+					break;
+				}
+			}
+		}
+		else if(x1 > x2)
+		{
+			for(ix = (x1 - Math.abs(x1) % 10) | 0; ix >= x2; ix -= 10)
+			{
+				tx = ((ix / 10) - 1) | 0;
+				iy = m * ix + b;
+				ty = -((iy / 10) | 0 );
+				if(tx < 0 ||
+					ty < 0 ||
+					tx >= this.width ||
+					ty >= this.width ||
+					this.tiles[ty * this.width + tx] > 0)
+				{
+					out.x = ix;
+					out.y = iy;
+					out.dir = "W";
+					hit = true;
+					break;
+				}
+			}
+		}
+		
+		// Trace the north / south wall intercepts
+		if(y1 < y2)
+		{
+			for(iy = (y1 + Math.abs(y1) % 10) | 0; iy <= y2; iy += 10)
+			{
+				ty = -((iy / 10) + 1) | 0;
+				if(vertical)
+					ix = x1;
+				else
+					ix = (iy - b) / m;
+				tx = (ix / 10) | 0;
+				if(tx < 0 ||
+					ty < 0 ||
+					tx >= this.width ||
+					ty >= this.width ||
+					this.tiles[ty * this.width + tx] > 0)
+				{
+					// If we already have a it, make sure we are closer
+					if(hit)
+					{
+						dx = (out.x - x1) * (out.x - x1) + (out.y - y1) * (out.y - y1);
+						dy = (ix - x1) * (ix - x1) + (iy - y1) * (iy - y1);
+						if(dx <= dy)
+						{
+							break;
+						}
+					}
+					out.x = ix;
+					out.y = iy;
+					out.dir = "N";
+					hit = true;
+					break;
+				}
+			}
+		}
+		else if(y1 > y2)
+		{
+			for(iy = y1 % 10 == 0 ? y1 : (y1 - (10 - Math.abs(y1) % 10)) | 0; iy >= y2; iy -= 10)
+			{
+				ty = -((iy / 10) | 0);
+				if(vertical)
+					ix = x1;
+				else
+					ix = (iy - b) / m;
+				tx = (ix / 10) | 0;
+				if(tx < 0 ||
+					ty < 0 ||
+					tx >= this.width ||
+					ty >= this.width ||
+					this.tiles[ty * this.width + tx] > 0)
+				{
+					// If we already have a it, make sure we are closer
+					if(hit)
+					{	
+						dx = (out.x - x1) * (out.x - x1) + (out.y - y1) * (out.y - y1);
+						dy = (ix - x1) * (ix - x1) + (iy - y1) * (iy - y1);
+						if(dx <= dy)
+						{
+							break;
+						}
+					}
+					out.x = ix;
+					out.y = iy;
+					out.dir = "S";
+					hit = true;
+					break;
+				}
+			}
+		}
+		
+		return hit;
 	}
 };
 

@@ -18,6 +18,7 @@ var commandsHeldDown = {};
 var lastFrameTime = new Date().getTime();
 var frameTime = 0;
 var player = null;
+var stickyMouseTrack = false;
 
 $(window).load(function()
 {
@@ -27,17 +28,25 @@ $(window).load(function()
 	$("#canvas").mouseup(handleMouseUp);
 	$("#canvas").mouseout(handleMouseOut);
 	$("#canvas").mousemove(handleMouseMove);
+	$("#canvas").click(handleClick);
 	config.init();
 	if(!js3d.init())
 	{
 		alert("Failed to initalize the renderer.");
 		return;
 	}
-	player = new Entity(50, -50, 0, models.player);
+	player = new Entity(35, -45, 0, models.player);
+	player.rotate(Math.PI/2);
 	js3d.clip(0.1, 130);
 	map = new TileMap(tileMap);
 	doFrame();
 });
+
+function handleClick(e)
+{
+	if(config.stickyMouse)
+		stickyMouseTrack = stickyMouseTrack ? false : true;
+}
 
 function handleMouseDown(e)
 {
@@ -57,19 +66,24 @@ function handleMouseOut(e)
 	}
 	lastMouseX = -1;
 	lastMouseY = -1;
+	stickyMouseTrack = false;
 }
 
 function handleMouseMove(e)
 {
-	if(mouseButtons[1] &&
-		lastMoveX >= 0 &&
-		lastMoveY >= 0)
+	if(lastMouseX >= 0 &&
+		lastMouseY >= 0 &&
+		(
+			mouseButtons[1] ||
+			stickyMouseTrack
+		)
+	)
 	{
-		var hMove = (e.offsetX - lastMoveX) / js3d.width;
+		var hMove = (e.offsetX - lastMouseX) / js3d.width;
 		player.rotate(hMove * Math.PI * 2 * config.mouseSpeed / 4);
 	}
-	lastMoveX = e.offsetX;
-	lastMoveY = e.offsetY;
+	lastMouseX = e.offsetX;
+	lastMouseY = e.offsetY;
 }
 
 function handleKeyDown(e)
@@ -117,7 +131,7 @@ function renderScene()
 	js3d.finishFrame();
 	var frameEndTime = new Date().getTime();
 	var frameTime = frameEndTime - frameStartTime;
-	$("#status").text(frameTime + "ms Triangles " + triangleStats);
+	$("#status").text(frameTime + "ms Triangles " + triangleStats + " POS " + player.x + "x" + player.y);
 	++framesRendered;
 	if(frameEndTime - fpsTimeStart >= 250)
 	{
@@ -132,6 +146,7 @@ function doFrame()
 	// Time update
 	var thisFrameTime = new Date().getTime();
 	frameTime = (thisFrameTime - lastFrameTime) / 1000;
+	frameTime = frameTime > 0.1 ? 0.1 : frameTime;
 	lastFrameTime = thisFrameTime;
 	
 	// Handle user input
@@ -141,11 +156,49 @@ function doFrame()
 	}
 	
 	// TODO Update world state
+	player.update();
+	if(!player.x ||
+		!player.y)
+	{
+		alert(debug.join(', '));
+	}
 	
 	// Render the scene
-	js3d.moveCameraTo(player.x, -6, player.y);
+	var cOfs = new Vector3D(0, 0, -2.5).yRotate(-player.rot);
+	js3d.moveCameraTo(player.x + cOfs.x, -6, player.y + cOfs.z);
 	js3d.rotateCameraTo(player.rot);
 	renderScene();
+	
+	// DEBUG
+	/** /
+	function testLine(x, y)
+	{
+		var cdt1 = new Vector3D(player.x, 0, player.y);
+		var cdt2 = new Vector3D(x, 0, y);
+		js3d.overlayLineSegment(Color.green, cdt1, cdt2);
+		var wallHit = {};
+		if(map.lineHitsWall(cdt1.x, cdt1.z, cdt2.x, cdt2.z, wallHit))
+		{
+			js3d.overlayPoint(Color.red, new Vector3D(wallHit.x, cdt1.y, wallHit.y));
+		}
+	}
+	testLine(player.x, player.y + 100);
+	testLine(player.x + 50, player.y + 100);
+	testLine(player.x + 100, player.y + 100);
+	testLine(player.x + 100, player.y + 50);
+	testLine(player.x + 100, player.y);
+	testLine(player.x + 100, player.y - 50);
+	testLine(player.x + 100, player.y - 100);
+	testLine(player.x + 50, player.y - 100);
+	testLine(player.x, player.y - 100);
+	testLine(player.x - 50, player.y - 100);
+	testLine(player.x - 100, player.y - 100);
+	testLine(player.x - 100, player.y - 50);
+	testLine(player.x - 100, player.y);
+	testLine(player.x - 100, player.y + 50);
+	testLine(player.x - 100, player.y + 100);
+	testLine(player.x - 50, player.y + 100);
+	/**/
 	
 	setTimeout(doFrame, 0);
 }

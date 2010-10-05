@@ -6,7 +6,7 @@ var commands =
 	},
 	moveForward: function()
 	{
-		var m = new Vector3D(0, 0, 50 * frameTime).yRotate(js3d.cameraRotation);
+		var m = new Vector3D(0, 0, player.moveSpeed * frameTime).yRotate(js3d.cameraRotation);
 		player.move(-m.x, m.z);
 	},
 	lookRight: function()
@@ -15,17 +15,17 @@ var commands =
 	},
 	moveBack: function()
 	{
-		var m = new Vector3D(0, 0, -50 * frameTime).yRotate(js3d.cameraRotation);
+		var m = new Vector3D(0, 0, -player.moveSpeed * frameTime).yRotate(js3d.cameraRotation);
 		player.move(-m.x, m.z);
 	},
 	moveLeft: function()
 	{
-		var m = new Vector3D(-50 * frameTime, 0, 0).yRotate(js3d.cameraRotation);
+		var m = new Vector3D(-player.moveSpeed * frameTime, 0, 0).yRotate(js3d.cameraRotation);
 		player.move(m.x, -m.z);
 	},
 	moveRight: function()
 	{
-		var m = new Vector3D(50 * frameTime, 0, 0).yRotate(js3d.cameraRotation);
+		var m = new Vector3D(player.moveSpeed * frameTime, 0, 0).yRotate(js3d.cameraRotation);
 		player.move(m.x, -m.z);
 	}
 };

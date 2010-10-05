@@ -6,7 +6,12 @@ var config =
 		$("#fillSeams").change(this.fillSeamsChange);
 		$("#highRes").change(this.highResChange);
 		$("#mouseSpeed").change(this.mouseSpeedChange);
+		$("#stickyMouse").change(this.stickyMouseChange);
 		this.updateUI();
+	},
+	stickyMouseChange: function(e)
+	{
+		config.stickyMouse = $("#stickyMouse").val() == "yes";		
 	},
 	mouseSpeedChange: function(e)
 	{
@@ -39,21 +44,17 @@ var config =
 			$("#resolution")[0].selectedIndex = 3;
 		else if(this.width == 1280)
 			$("#resolution")[0].selectedIndex = 4;
-		if(this.fillSeams)
-			$("#fillSeams")[0].selectedIndex = 1;
-		else
-			$("#fillSeams")[0].selectedIndex = 0;
-		if(this.highRes)
-			$("#highRes")[0].selectedIndex = 1;
-		else
-			$("#highRes")[0].selectedIndex = 0;
+		$("#fillSeams")[0].selectedIndex = this.fillSeams ? 1 : 0;
+		$("#highRes")[0].selectedIndex = this.highRes ? 1 : 0;
 		$("#mouseSpeed")[0].selectedIndex = this.mouseSpeed / 2 - 1;
+		$("#stickyMouse")[0].selectedIndex = this.stickyMouse ? 1 : 0;
 	},
 	width: 640,
 	height: 480,
 	fillSeams: false,
 	highRes: true,
 	mouseSpeed: 8,
+	stickyMouse: true,
 	keyBindings:
 	{
 		37: "lookLeft",
