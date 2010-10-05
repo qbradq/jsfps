@@ -91,6 +91,14 @@ var models =
 		],
 		bounds: new BoundingBox(-2.5, -2.5, 5, 5)
 	},
+	projectile:
+	{
+		points: [
+		],
+		faces: [
+		],
+		bounds: new BoundingBox(-0.5, -0.5, 1, 1)
+	},
 	pyramidar:
 	{
 		points: [
@@ -108,3 +116,23 @@ var models =
 	}
 };
 delete(V);
+
+// Model data post-processing
+(function()
+{
+	var o, points, i, maxD2 = 0, thisD2, p, maxD;
+	
+	// Determine the rendering bounds of each model
+	for(o in models)
+	{
+		points = models[o].points;
+		for(i = 0; i < points.length; ++i)
+		{
+			p = points[i];
+			thisD2 = p.x * p.x + p.y * p.y;
+			maxD2 = thisD2 > maxD2 ? thisD2 : maxD2;
+		}
+		maxD = Math.sqrt(maxD2);
+		models[o].renderBounds = new BoundingBox(-maxD, -maxD, maxD * 2, maxD * 2);
+	}
+})();

@@ -35,10 +35,14 @@ $(window).load(function()
 		alert("Failed to initalize the renderer.");
 		return;
 	}
-	player = new Entity(35, -45, 0, models.player);
-	player.rotate(Math.PI/2);
 	js3d.clip(0.1, 130);
 	map = new TileMap(tileMap);
+	player = new Entity(35, -45, 0, models.player);
+	player.rotate(Math.PI/2);
+	map.addEntity(player);
+	var ent = new Entity(50, -20, Math.PI, models.pyramidar);
+	map.addEntity(ent);
+
 	doFrame();
 });
 
@@ -119,19 +123,13 @@ function renderScene()
 	var frameStartTime = new Date().getTime();
 	
 	js3d.clear();
-	if(config.highRes)
-		map.renderHighRes();
-	else
-		map.render();
-	var ent = new Entity(50, -20, Math.PI, models.pyramidar);
-	ent.render();
-	player.render();
+	map.render();
 
 	var triangleStats = "Processed " + js3d.trianglesProcessed + " Projected " + js3d.trianglesRasterized + " Drawn " + js3d.trianglesDrawn;
 	js3d.finishFrame();
 	var frameEndTime = new Date().getTime();
 	var frameTime = frameEndTime - frameStartTime;
-	$("#status").text(frameTime + "ms Triangles " + triangleStats + " POS " + player.x + "x" + player.y);
+	$("#status").text(frameTime + "ms Triangles " + triangleStats);
 	++framesRendered;
 	if(frameEndTime - fpsTimeStart >= 250)
 	{
@@ -155,14 +153,9 @@ function doFrame()
 		commands[o]();
 	}
 	
-	// TODO Update world state
-	player.update();
-	if(!player.x ||
-		!player.y)
-	{
-		alert(debug.join(', '));
-	}
-	
+	// Update world state
+	map.update();
+
 	// Render the scene
 	var cOfs = new Vector3D(0, 0, -2.5).yRotate(-player.rot);
 	js3d.moveCameraTo(player.x + cOfs.x, -6, player.y + cOfs.z);

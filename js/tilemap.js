@@ -3,10 +3,25 @@ function TileMap(data)
 	this.width = data.width;
 	this.height = data.height;
 	this.tiles = data.tiles;
+	this.entities = [];
 }
 TileMap.prototype =
 {
 	pvs: null,
+	pvsEntities: null,
+	// Add an entity to this map
+	addEntity: function(ent)
+	{
+		this.entities.push(ent);
+	},
+	// Remove an entity from this map   
+	removeEntity: function(ent)
+	{
+		var idx = this.entities.indexOf(ent);
+		if(idx < 0)
+			return;
+		this.entities.splice(idx, 1);
+	},
 	// Accessor method, determine if a world coordinate is in a wall tile
 	isPointInWall: function(x, y)
 	{
@@ -23,8 +38,39 @@ TileMap.prototype =
 			return false;
 		return true;
 	},
-	// Render the map from the current camera location
+	// Update all entities
+	update: function()
+	{
+		var i;
+		
+		for(i = 0; i < this.entities.length; ++i)
+		{
+			this.entities[i].update();
+		}
+	},
+	// High-level wrapper for rendering operations
 	render: function()
+	{
+		this.calculatePVS();
+		if(config.highRes)
+			this.renderHighRes();
+		else
+			map.renderLowRes();
+		this.renderEntities();
+	},
+	// Render all of the entities on the map that are within the view frustrum
+	renderEntities: function()
+	{
+		var i;
+		
+		for(i = 0; i < this.pvsEntities.length; ++i)
+		{
+			this.pvsEntities[i].render();
+		}
+		$("#debug").text(this.pvsEntities.length);
+	},
+	// Render the map from the current camera location
+	renderLowRes: function()
 	{
 		var v1 = new Vector3D(0, 0, 0);
 		var v2 = new Vector3D(0, 0, 0);
@@ -34,9 +80,6 @@ TileMap.prototype =
 		var colorFloor = new Color(128, 128, 128);
 		var dataOfs = 0;
 		var o, ix, iy, tile;
-
-		// Calculate the Potentially Visibile Set (PVS) and apply optimizations
-		this.calculatePVS();
 
 		// Now render every tile in the PVS
 		for(o in this.pvs)
@@ -125,9 +168,6 @@ TileMap.prototype =
 		var colorFloor = new Color(128, 128, 128);
 		var dataOfs = 0;
 		var o, ix, iy, tile;
-
-		// Calculate the Potentially Visibile Set (PVS) and apply optimizations
-		this.calculatePVS();
 
 		// Now render every tile in the PVS
 		for(o in this.pvs)
@@ -229,10 +269,11 @@ TileMap.prototype =
 	calculatePVS: function()
 	{
 		this.pvs = {};
+		this.pvsEntities = [];
 		
 		// Temp variables
 		var halfFOV = js3d.fovAngle / 2;
-		var ix, iy, pxl, pxr, pyt, pyb;
+		var ix, iy, pxl, pxr, pyt, pyb, i, ent;
 		var x = js3d.cameraPosition.x;
 		var y = js3d.cameraPosition.z;
 		
@@ -270,7 +311,8 @@ TileMap.prototype =
 		fr.dy = fr.y2 - fr.y1;
 		cp.dx = cp.x2 - cp.x1;
 		cp.dy = cp.y2 - cp.y1;
-
+		
+		// Add map locations that are within the frustram
 		for(iy = 0; iy < this.height; ++iy)
 		{
 			pyt = iy * -10;
@@ -303,6 +345,39 @@ TileMap.prototype =
 				// If we are still in the loop the tile overlapps the view frustram
 				this.pvs[ix + "x" + iy] = {x: ix, y: iy, tile: this.tiles[iy * this.width + ix]};
 			}
+		}
+		
+		// Add entities that are within the frustram
+		for(i = 0; i < this.entities.length; ++i)
+		{
+			ent = this.entities[i];
+			pyt = ent.y + ent.model.renderBounds.y;
+			pyb = pyt + ent.model.renderBounds.h;
+			pxl = ent.x + ent.model.renderBounds.x;
+			pxr = pxl + ent.model.renderBounds.w;
+			//alert(pyl + "," + pyt + " " + pyr + "," + pyb);
+
+			// If all points are left of the left bound exclude it
+			if((pxl - fl.x1) * fl.dy - fl.dx * (pyt - fl.y1) < 0 &&
+				(pxl - fl.x1) * fl.dy - fl.dx * (pyb - fl.y1) < 0 &&
+				(pxr - fl.x1) * fl.dy - fl.dx * (pyt - fl.y1) < 0 &&
+				(pxr - fl.x1) * fl.dy - fl.dx * (pyb - fl.y1) < 0)
+				continue;
+			// Or if all points are right of the right bound exclude it
+			if((pxl - fr.x1) * fr.dy - fr.dx * (pyt - fr.y1) > 0 &&
+				(pxl - fr.x1) * fr.dy - fr.dx * (pyb - fr.y1) > 0 &&
+				(pxr - fr.x1) * fr.dy - fr.dx * (pyt - fr.y1) > 0 &&
+				(pxr - fr.x1) * fr.dy - fr.dx * (pyb - fr.y1) > 0)
+				continue;
+			// Or if all points are to the right of the far clipping plane
+			if((pxl - cp.x1) * cp.dy - cp.dx * (pyt - cp.y1) > 0 &&
+				(pxl - cp.x1) * cp.dy - cp.dx * (pyb - cp.y1) > 0 &&
+				(pxr - cp.x1) * cp.dy - cp.dx * (pyt - cp.y1) > 0 &&
+				(pxr - cp.x1) * cp.dy - cp.dx * (pyb - cp.y1) > 0)
+				continue;
+			// If we are still in the loop the entitie's bounding rectangle
+			// overlapps the view frustram, so add it to the list
+			this.pvsEntities.push(ent);
 		}
 	},
 	// Trace a line segment through the map and return where it hit a wall,
