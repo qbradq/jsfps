@@ -178,6 +178,43 @@ var js3d =
 		v.x = ((v.x * v.z) + 1) * this.halfWidth;
 		v.y = ((v.y * v.z) + 1) * this.halfWidth - this.letterBoxHeight;
 	},
+	// Immediatley rasterizes a "point" to the display without going through
+	// the triangle buffer. Use this after calling finishFrame().
+	overlayPoint: function(color, v1)
+	{
+		v1 = this.cameraTranslatePoint(v1);
+		if(v1.z <= this.nearClip)
+			return;
+		if(v1.z >= this.farClip)
+			return;
+		this.projectPoint(v1);
+		this.context.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+		this.context.fillRect(v1.x - 2, v1.y - 2, 4, 4);
+	},
+	// Immediatley rasterizes a line to the display without going through the
+	// triangle buffer. Use this after calling finishFrame().
+	overlayLineSegment: function(color, v1, v2)
+	{
+		v1 = this.cameraTranslatePoint(v1);
+		v2 = this.cameraTranslatePoint(v2);
+		if(v1.z <= this.nearClip &&
+			v2.z <= this.nearClip)
+			return;
+		if(v1.z >= this.farClip &&
+			v2.z >= this.farClip)
+			return;
+		if(v1.z <= this.nearClip)
+			v1.z = this.nearClip;
+		if(v2.z <= this.nearClip)
+			v2.z = this.nearClip;
+		this.projectPoint(v1);
+		this.projectPoint(v2);
+		this.context.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
+		this.context.beginPath();
+		this.context.moveTo(v1.x, v1.y);
+		this.context.lineTo(v2.x, v2.y);
+		this.context.stroke();
+	},
 	// Project a triangle to the screen and rasterize it
 	projectTriangle: function(color, v1, v2, v3, firstPass)
 	{
