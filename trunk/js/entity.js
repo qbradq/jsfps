@@ -45,12 +45,20 @@ Entity.prototype =
 	},
 	update: function()
 	{
+		// Only update movement if we have moved
+		if(this.x != this.lastX ||
+			this.y != this.lastY)
+			this.updateMovement();
+	},
+	updateMovement: function()
+	{
 		// Restrict movement to the move speed
 		var dx = (this.x - this.lastX);
 		var dy = (this.y - this.lastY);
 		var distance = dx * dx + dy * dy;
 		var maxMove = this.moveSpeed * frameTime;
-		var i, x1, x2, y1, y2, xMod, yMod, mapHit = {};
+		var i, x1, x2, y1, y2, xMod, yMod, mapHit = {}, entList = [];
+		var entBounds, ent;
 		if(distance > maxMove * maxMove)
 		{
 			distance = Math.sqrt(distance);
@@ -58,7 +66,38 @@ Entity.prototype =
 			this.x = this.lastX + dx * ratio;
 			this.y = this.lastY + dy * ratio;
 		}
-		
+
+		// Handle entity collisions
+		if(map.entityHitsEntity(this, entList))
+		{
+			for(i = 0; i < entList.length; ++i)
+			{
+				// We have a hit, back off the line of travel by the
+				// penetration amount based on direction, plus a little extra
+				// "bounce" travel to cheat our imperfect collision routine.
+				if(entList[i].dir == "W")
+				{
+					this.x = (entList[i].x - this.model.bounds.x) + 0.001;
+				}
+				else if(entList[i].dir == "E")
+				{
+					this.x = (entList[i].x - (this.model.bounds.x +
+						this.model.bounds.w)) - 0.001;
+				}
+				else if(entList[i].dir == "S")
+				{
+					this.y = (entList[i].y - this.model.bounds.y) + 0.001;					
+				}
+				else
+				{
+					alert(entList[i].y + " " + (entList[i].y - (this.model.bounds.h -
+						this.model.bounds.y)));
+					this.y = (entList[i].y - (this.model.bounds.h -
+						this.model.bounds.y)) - 0.001;
+				}
+			}
+		}
+
 		// Handle map collisions
 		for(i = 0; i < 4; ++i)
 		{
