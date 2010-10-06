@@ -67,7 +67,7 @@ TileMap.prototype =
 		{
 			this.pvsEntities[i].render();
 		}
-		$("#debug").text(this.pvsEntities.length);
+		//$("#debug").text(this.pvsEntities.length);
 	},
 	// Render the map from the current camera location
 	renderLowRes: function()
@@ -380,6 +380,197 @@ TileMap.prototype =
 			this.pvsEntities.push(ent);
 		}
 	},
+	// Trace the movement of an entity and return what entities it hits, if
+	// any.
+	entityHitsEntity: function(sourceEnt, out)
+	{
+		var hit = false;
+		var m, b, i;
+		var ent, bounds, el, er, et, eb, sl, sr, st, sb;
+		var sbl, sbr, sbt, sbb;
+		var sx, sy, vx, vy, ofsX, ofsY;
+		var outVar;
+		
+		// Velocity of source entity
+		sx = sourceEnt.lastX;
+		sy = sourceEnt.lastY;
+		vx = sourceEnt.x - sourceEnt.lastX;
+		vy = sourceEnt.y - sourceEnt.lastY;
+
+		// Quick exclusion bounds of entity movement
+		sl = sx + sourceEnt.model.bounds.x;
+		sr = sl + sourceEnt.model.bounds.w;
+		st = sy + sourceEnt.model.bounds.y;
+		sb = st + sourceEnt.model.bounds.h;
+		sbl = vx < 0 ? sl + vx : sl;
+		sbr = vx < 0 ? sr : sr + vx;
+		sbt = vy < 0 ? st + vy : st;
+		sbb = vy < 0 ? sb : sb + vy;
+
+		// Line formula variables
+		if(vx != 0)
+		{
+			m = vy / vx;
+			b = sy - m * sx;
+		}
+		
+		// y = m * x + b
+		// x = (y - b) / m
+		
+		for(i = 0; i < this.entities.length; ++i)
+		{
+			// Exclude the source entity
+			ent = this.entities[i];
+			if(ent == sourceEnt)
+				continue;
+			
+			// Quick bounds exclusion
+			bounds = ent.model.bounds;
+			el = ent.x + bounds.x;
+			er = el + bounds.w;
+			et = ent.y + bounds.y;
+			eb = et + bounds.h;
+			if(sbr < el ||
+				sbl > er ||
+				sbb < et ||
+				sbt > eb)
+				continue;
+			
+			// East-moving test
+			if(vx > 0)
+			{
+				ofsY = (m * el + b) - sy;
+				if(sb + ofsY >= et &&
+					st + ofsY <= eb)
+				{
+					outVar = {ent: ent, dir: "E", x: el, y: sy + ofsY, pen: sr - el};
+					hit = true;
+				}
+			}
+			// West-moving test
+			else if(vx < 0)
+			{
+				ofsY = (m * er + b) - sy;
+				if(sb + ofsY >= et &&
+					st + ofsY <= eb)
+				{
+					outVar = {ent: ent, dir: "W", x: er, y: sy + ofsY, pen: er - sl};
+					hit = true;
+				}
+			}
+			// South-moving test
+			if(vy < 0)
+			{
+				if(vx == 0)
+					ofsX = 0;
+				else
+					ofsX = ((eb - b) / m) - sx;
+				if(sl + ofsX <= er &&
+					sr + ofsX >= el)
+				{
+					if(hit == false ||
+						outVar.pen > st - eb)
+					{
+						outVar = {ent: ent, dir: "S", x: sx + ofsY, y: eb};
+					}
+					hit = true;
+				}
+			}
+			// North-moving test
+			if(vy > 0)
+			{
+				if(vx == 0)
+					ofsX = 0;
+				else
+					ofsX = ((eb - b) / m) - sx;
+				if(sl + ofsX <= er &&
+					sr + ofsX >= el)
+				{
+					if(hit == false ||
+						outVar.pen > eb - st)
+					{
+						outVar = {ent: ent, dir: "N", x: sx + ofsY, y: et};
+					}
+					hit = true;
+				}
+			}
+		}
+		
+		if(hit)
+			out.push(outVar);
+		return hit;
+	},
+	// Trace a line segment and return what entities it hits, if any.
+	// WORKING!!!
+	lineHitsEntity: function(sourceEnt, x1, y1, x2, y2, out)
+	{
+		var vertical, m, b, i;
+		var ent, bounds, bl, br, bt, bb, ll, lr, lt, lb, lx, ly;
+		ll = x1 < x2 ? x1 : x2;
+		lr = x2 < x1 ? x2 : x1;
+		lt = y1 < y2 ? y1 : y2;
+		lb = y2 < y1 ? y2 : y1;
+		
+		// Line formula variables
+		if(x2 - x1 == 0)
+		{
+			vertical = true;
+		}
+		else
+		{
+			m = (y2 - y1) / (x2 - x1);
+			b = y1 - m * x1;
+		}
+		
+		// y = m * x + b
+		// x = (y - b) / m
+		
+		for(i = 0; i < this.entities; ++i)
+		{
+			ent = this.entities[i];
+			if(ent == sourceEnt)
+				continue;
+			bounds = ent.model.bounds;
+			bl = ent.x + bounds.x;
+			br = bl + bounds.w;
+			bt = ent.y + bounds.y;
+			bb = bt + bounds.h;
+			
+			// Simple rect test to exclued
+			if(lr < bl ||
+				ll > br ||
+				lb < bt ||
+				lt > bb)
+				continue;
+			
+			// Left wall test
+			if(x1 < x2 &&
+				ll <= bl &&
+				lr >= bl)
+			{
+				ly = m * bl + b;
+				if(ly >= bt &&
+					ly <= bb)
+				{
+					out.push(ent);
+					continue;
+				}
+			}
+			// Right wall test
+			else if(x1 > x2 &&
+				ll <= br &&
+				lr >= br)
+			{
+				ly = m * br + b;
+				if(ly >= bt &&
+					ly <= bb)
+				{
+					out.push(ent);
+					continue;
+				}
+			}
+		}
+	},
 	// Trace a line segment through the map and return where it hit a wall,
 	// if ever, in an output variable.
 	lineHitsWall: function(x1, y1, x2, y2, out)
@@ -396,6 +587,9 @@ TileMap.prototype =
 			m = (y2 - y1) / (x2 - x1);
 			b = y1 - m * x1;
 		}
+		
+		// y = m * x + b
+		// x = (y - b) / m
 		
 		// Trace the east / west wall intercepts
 		hit = false;

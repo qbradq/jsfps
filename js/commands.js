@@ -1,5 +1,8 @@
 var commands =
 {
+	attack: function()
+	{
+	},
 	lookLeft: function()
 	{
 		player.rotate(-Math.PI * 2 * frameTime);

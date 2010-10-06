@@ -89,7 +89,7 @@ var models =
 			Color.blue,0,3,1,	Color.blue,0,2,4,
 			Color.blue,2,1,5
 		],
-		bounds: new BoundingBox(-2.5, -2.5, 5, 5)
+		bounds: new BoundingBox(-2.5, 2.5, 5, 5)
 	},
 	projectile:
 	{
@@ -97,7 +97,7 @@ var models =
 		],
 		faces: [
 		],
-		bounds: new BoundingBox(-0.5, -0.5, 1, 1)
+		bounds: new BoundingBox(-0.5, 0.5, 1, 1)
 	},
 	pyramidar:
 	{
@@ -112,7 +112,7 @@ var models =
 			Color.green,6,5,4,		Color.green,7,6,4,		Color.green,8,7,4,		Color.green,5,8,4,
 			Color.green,5,6,9,		Color.green,6,7,9,		Color.green,7,8,9,		Color.red,8,5,9
 		],
-		bounds: new BoundingBox(-3, -3, 6, 6)
+		bounds: new BoundingBox(-3, 3, 6, 6)
 	}
 };
 delete(V);

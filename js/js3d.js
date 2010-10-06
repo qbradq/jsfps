@@ -26,6 +26,8 @@ var js3d =
 	// Initialize the 3D renderer
 	init: function()
 	{
+		this.width = config.width;
+		this.height = config.height;
 		this.cameraPosition = new Vector3D(0, 0, 0);
 		this.cameraRotation = 0;
 		this.cameraRotationSine = Math.sin(0);

@@ -30,6 +30,7 @@ $(window).load(function()
 	$("#canvas").mousemove(handleMouseMove);
 	$("#canvas").click(handleClick);
 	config.init();
+	config.kill();
 	if(!js3d.init())
 	{
 		alert("Failed to initalize the renderer.");
@@ -37,18 +38,24 @@ $(window).load(function()
 	}
 	js3d.clip(0.1, 130);
 	map = new TileMap(tileMap);
-	player = new Entity(35, -45, 0, models.player);
-	player.rotate(Math.PI/2);
+	player = new Entity(25, -45, 0, models.player);
+	player.rotate(0*3*Math.PI/2);
 	map.addEntity(player);
-	var ent = new Entity(50, -20, Math.PI, models.pyramidar);
+	var ent = new Entity(25, -35, Math.PI, models.pyramidar);
 	map.addEntity(ent);
 
 	doFrame();
 });
 
+$(window).unload(function(e)
+{
+	config.kill();
+});
+
 function handleClick(e)
 {
-	if(config.stickyMouse)
+	if(e.which == 1 &&
+		config.stickyMouse)
 		stickyMouseTrack = stickyMouseTrack ? false : true;
 }
 
@@ -151,6 +158,10 @@ function doFrame()
 	for(var o in commandsHeldDown)
 	{
 		commands[o]();
+	}
+	if(mouseButtons[3])
+	{
+		commands.moveForward();
 	}
 	
 	// Update world state

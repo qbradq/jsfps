@@ -1,7 +1,9 @@
 <html>
 <head>
 	<title>JavaScript FPS Demo</title>
+	<script type="text/javascript" src="js/json/json2.js"></script>
 	<script type="text/javascript" src="js/jquery/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="js/quirksmode/cookies.js"></script>
 	<script type="text/javascript" src="js/config.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
 	<script type="text/javascript" src="js/commands.js"></script>
@@ -58,7 +60,7 @@
 			<td id="configWindow">
 				<table cellpadding="0" cellspacing="0" width="100%">
 					<tr>
-						<td>FPS</td>
+						<td width="40%">FPS</td>
 						<td align="right"><span id="fps"></span></td>
 					</tr>
 					<tr>
@@ -88,6 +90,15 @@
 							<select id="highRes">
 								<option value="no">No</option>
 								<option value="yes">Yes</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>Key Config</td>
+						<td align="right">
+							<select id="keyBinding">
+								<option value="Modern FPS">Modern FPS</option>
+								<option value="Classic QWERTY">Classic QWERTY</option>
 							</select>
 						</td>
 					</tr>
