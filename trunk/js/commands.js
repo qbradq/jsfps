@@ -2,6 +2,7 @@ var commands =
 {
 	attack: function()
 	{
+		player.attack();
 	},
 	lookLeft: function()
 	{

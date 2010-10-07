@@ -505,19 +505,16 @@ TileMap.prototype =
 	// WORKING!!!
 	lineHitsEntity: function(sourceEnt, x1, y1, x2, y2, out)
 	{
-		var vertical, m, b, i;
+		var m, b, i;
 		var ent, bounds, bl, br, bt, bb, ll, lr, lt, lb, lx, ly;
+		var hit = false;
 		ll = x1 < x2 ? x1 : x2;
-		lr = x2 < x1 ? x2 : x1;
-		lt = y1 < y2 ? y1 : y2;
-		lb = y2 < y1 ? y2 : y1;
+		lr = x1 < x2 ? x2 : x1;
+		lt = y1 > y2 ? y1 : y2;
+		lb = y1 > y2 ? y2 : y1;
 		
 		// Line formula variables
-		if(x2 - x1 == 0)
-		{
-			vertical = true;
-		}
-		else
+		if(x2 != x1)
 		{
 			m = (y2 - y1) / (x2 - x1);
 			b = y1 - m * x1;
@@ -526,7 +523,7 @@ TileMap.prototype =
 		// y = m * x + b
 		// x = (y - b) / m
 		
-		for(i = 0; i < this.entities; ++i)
+		for(i = 0; i < this.entities.length; ++i)
 		{
 			ent = this.entities[i];
 			if(ent == sourceEnt)
@@ -535,13 +532,13 @@ TileMap.prototype =
 			bl = ent.x + bounds.x;
 			br = bl + bounds.w;
 			bt = ent.y + bounds.y;
-			bb = bt + bounds.h;
+			bb = bt - bounds.h;
 			
 			// Simple rect test to exclued
 			if(lr < bl ||
 				ll > br ||
-				lb < bt ||
-				lt > bb)
+				lb > bt ||
+				lt < bb)
 				continue;
 			
 			// Left wall test
@@ -550,10 +547,11 @@ TileMap.prototype =
 				lr >= bl)
 			{
 				ly = m * bl + b;
-				if(ly >= bt &&
-					ly <= bb)
+				if(ly <= bt &&
+					ly >= bb)
 				{
 					out.push(ent);
+					hit = true;
 					continue;
 				}
 			}
@@ -563,14 +561,50 @@ TileMap.prototype =
 				lr >= br)
 			{
 				ly = m * br + b;
-				if(ly >= bt &&
-					ly <= bb)
+				if(ly <= bt &&
+					ly >= bb)
 				{
 					out.push(ent);
+					hit = true;
+					continue;
+				}
+			}
+			// Bottom wall test
+			if(y1 < y2 &&
+				lb <= bb &&
+				lt >= bb)
+			{
+				if(x1 == x2)
+					lx = x1;
+				else
+					lx = (bb - b) / m;
+				if(lx >= bl &&
+					lx <= br)
+				{
+					out.push(ent);
+					hit = true;
+					continue;
+				}
+			}
+			// Top wall test
+			else if(y1 > y2 &&
+				lb <= bt &&
+				lt >= bt)
+			{
+				if(x1 == x2)
+					lx = x1;
+				else
+					lx = (bt - b) / m;
+				if(lx >= bl &&
+					lx <= br)
+				{
+					out.push(ent);
+					hit = true;
 					continue;
 				}
 			}
 		}
+		return hit;
 	},
 	// Trace a line segment through the map and return where it hit a wall,
 	// if ever, in an output variable.

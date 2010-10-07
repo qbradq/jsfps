@@ -16,6 +16,7 @@ var framesRendered = 0;
 var fpsTimeStart = -1;
 var commandsHeldDown = {};
 var lastFrameTime = new Date().getTime();
+var thisFrameTime = lastFrameTime;
 var frameTime = 0;
 var player = null;
 var stickyMouseTrack = false;
@@ -38,11 +39,13 @@ $(window).load(function()
 	}
 	js3d.clip(0.1, 130);
 	map = new TileMap(tileMap);
-	player = new Entity(25, -45, 0, models.player);
-	player.rotate(0*3*Math.PI/2);
+	player = new Mobile(15, -45, 0, models.player, 10);
+	player.rotate(Math.PI/2);
 	map.addEntity(player);
-	var ent = new Entity(25, -35, Math.PI, models.pyramidar);
+	var ent = new Mobile(45, -25, 0, models.pyramidar, 3);
 	map.addEntity(ent);
+	//var ent = new Projectile(45, -55, 0, models.projectile);
+	//map.addEntity(ent);
 
 	doFrame();
 });
@@ -149,7 +152,7 @@ function renderScene()
 function doFrame()
 {
 	// Time update
-	var thisFrameTime = new Date().getTime();
+	thisFrameTime = new Date().getTime();
 	frameTime = (thisFrameTime - lastFrameTime) / 1000;
 	frameTime = frameTime > 0.1 ? 0.1 : frameTime;
 	lastFrameTime = thisFrameTime;
@@ -202,6 +205,16 @@ function doFrame()
 	testLine(player.x - 100, player.y + 50);
 	testLine(player.x - 100, player.y + 100);
 	testLine(player.x - 50, player.y + 100);
+	/**/
+	/** /
+	var cdp = new Vector3D(0, -4, 100).yRotate(-player.rot).add(new Vector3D(player.x, 0, player.y));
+	var lineColor = Color.green;
+	var entList = [];
+	if(map.lineHitsEntity(player, player.x, player.y, cdp.x, cdp.z, entList))
+	{
+		lineColor = Color.red;
+	}
+	js3d.overlayLineSegment(lineColor, new Vector3D(player.x, -4, player.y), cdp);
 	/**/
 	
 	setTimeout(doFrame, 0);
