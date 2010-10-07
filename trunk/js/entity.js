@@ -86,14 +86,14 @@ Entity.prototype =
 				}
 				else if(entList[i].dir == "S")
 				{
-					this.y = (entList[i].y - this.model.bounds.y) + 0.001;					
+					this.y = (entList[i].y + (this.model.bounds.h -
+						this.model.bounds.y)) + 0.001;
 				}
 				else
 				{
-					alert(entList[i].y + " " + (entList[i].y - (this.model.bounds.h -
-						this.model.bounds.y)));
-					this.y = (entList[i].y - (this.model.bounds.h -
-						this.model.bounds.y)) - 0.001;
+					//alert(entList[i].y + " " + (entList[i].y - (this.model.bounds.h -
+					//	this.model.bounds.y)));
+					this.y = (entList[i].y - this.model.bounds.y) - 0.001;		
 				}
 			}
 		}
@@ -109,7 +109,7 @@ Entity.prototype =
 				i == 2)
 				yMod = this.model.bounds.y;
 			else
-				yMod = this.model.bounds.y + this.model.bounds.h;
+				yMod = this.model.bounds.y - this.model.bounds.h;
 			x1 = this.lastX + xMod;
 			x2 = this.x + xMod;
 			y1 = this.lastY + yMod;
