@@ -47,6 +47,8 @@ $(window).load(function()
 	map.addEntity(ent);
 	//var ent = new Projectile(45, -55, 0, models.projectile);
 	//map.addEntity(ent);
+	//var pTest = new ParticleSystem(45, -65, Color.white, 10, 6, 300, 0.0);
+	//map.addEntity(pTest);
 
 	doFrame();
 });
