@@ -89,15 +89,17 @@ var models =
 			Color.blue,0,3,1,	Color.blue,0,2,4,
 			Color.blue,2,1,5
 		],
-		bounds: new BoundingBox(-2.5, 2.5, 5, 5)
+		bounds: new BoundingBox(-3, 3, 6, 6)
 	},
 	projectile:
 	{
 		points: [
+			V(-0.5,-3.75,-0.25),	V(0.5,-3.75,-0.25),	V(0,-4.25,-0.25),	V(0,-4,0.75)
 		],
 		faces: [
+			Color.red,0,1,2,		Color.red,0,2,3,	Color.red,1,3,2,	Color.red,0,3,1
 		],
-		bounds: new BoundingBox(-0.5, 0.5, 1, 1)
+		bounds: new BoundingBox(-0.25, -0.25, 0.5, 1)
 	},
 	pyramidar:
 	{

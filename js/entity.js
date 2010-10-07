@@ -7,10 +7,13 @@ function Entity(x, y, rot, model)
 	this.rot = rot;
 	this.model = model;
 	this.moveSpeed = 50;
+	this.attackDelayMs = 200;
+	this.lastAttackTime = 0;
 }
 
 Entity.prototype =
 {
+	type: "Entity",
 	rotate: function(amount)
 	{
 		this.rot += amount;
@@ -19,6 +22,20 @@ Entity.prototype =
 	{
 		this.x += x;
 		this.y += y;
+	},
+	die: function()
+	{
+		map.removeEntity(this);
+	},
+	attack: function()
+	{
+		if(this.lastAttackTime + this.attackDelayMs > thisFrameTime)
+			return;
+		this.lastAttackTime = thisFrameTime;
+		var pPos = new Vector3D(0, 0, 7);
+		pPos = pPos.yRotate(-this.rot, pPos);
+		var p = new Projectile(pPos.x + this.x, pPos.z + this.y, this.rot, models.projectile);
+		map.addEntity(p);
 	},
 	render: function()
 	{
@@ -43,12 +60,37 @@ Entity.prototype =
 			);
 		}
 	},
+	collideWithEntity: function(entHit)
+	{
+		// We have a hit, back off the line of travel by the
+		// penetration amount based on direction, plus a little extra
+		// "bounce" travel to cheat our imperfect collision routine.
+		if(entHit.dir == "W")
+		{
+			this.x = (entHit.x - this.model.bounds.x) + 0.001;
+		}
+		else if(entHit.dir == "E")
+		{
+			this.x = (entHit.x - (this.model.bounds.x +
+				this.model.bounds.w)) - 0.001;
+		}
+		else if(entHit.dir == "S")
+		{
+			this.y = (entHit.y + (this.model.bounds.h -
+				this.model.bounds.y)) + 0.001;
+		}
+		else
+		{
+			this.y = (entHit.y - this.model.bounds.y) - 0.001;		
+		}
+
+	},
+	collideWithWall: function()
+	{
+	},
 	update: function()
 	{
-		// Only update movement if we have moved
-		if(this.x != this.lastX ||
-			this.y != this.lastY)
-			this.updateMovement();
+		this.updateMovement();
 	},
 	updateMovement: function()
 	{
@@ -59,6 +101,7 @@ Entity.prototype =
 		var maxMove = this.moveSpeed * frameTime;
 		var i, x1, x2, y1, y2, xMod, yMod, mapHit = {}, entList = [];
 		var entBounds, ent;
+		var wallHit = false;
 		if(distance > maxMove * maxMove)
 		{
 			distance = Math.sqrt(distance);
@@ -72,29 +115,7 @@ Entity.prototype =
 		{
 			for(i = 0; i < entList.length; ++i)
 			{
-				// We have a hit, back off the line of travel by the
-				// penetration amount based on direction, plus a little extra
-				// "bounce" travel to cheat our imperfect collision routine.
-				if(entList[i].dir == "W")
-				{
-					this.x = (entList[i].x - this.model.bounds.x) + 0.001;
-				}
-				else if(entList[i].dir == "E")
-				{
-					this.x = (entList[i].x - (this.model.bounds.x +
-						this.model.bounds.w)) - 0.001;
-				}
-				else if(entList[i].dir == "S")
-				{
-					this.y = (entList[i].y + (this.model.bounds.h -
-						this.model.bounds.y)) + 0.001;
-				}
-				else
-				{
-					//alert(entList[i].y + " " + (entList[i].y - (this.model.bounds.h -
-					//	this.model.bounds.y)));
-					this.y = (entList[i].y - this.model.bounds.y) - 0.001;		
-				}
+				this.collideWithEntity(entList[i]);
 			}
 		}
 
@@ -129,8 +150,11 @@ Entity.prototype =
 				{
 					this.x -= (x2 - mapHit.x) * 1.001;
 				}
+				wallHit = true;
 			}
 		}
+		if(wallHit)
+			this.collideWithWall();
 		
 		// Update previous state
 		this.lastX = this.x;

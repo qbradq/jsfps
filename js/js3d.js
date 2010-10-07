@@ -103,6 +103,12 @@ var js3d =
 	{
 		this.rotateCameraTo(this.cameraRotation + r);
 	},
+	// Rasterize a point onto the screen
+	rasterizePoint: function(color, v1, zIndex)
+	{
+		// Push the point information to the raster list
+		this.rasterList.push({p: true, zIndex: zIndex, v1: v1, color: color});
+	},
 	// Rasterize a triangle onto the screen
 	rasterizeTriangle: function(color, v1, v2, v3, zIndex)
 	{
@@ -134,22 +140,33 @@ var js3d =
 	// scene.
 	finishFrame: function()
 	{
-		var i, t;
+		var i, t, pointSize;
 		this.rasterList.sort(this.zBufferSort);
 		for(i = 0; i < this.rasterList.length; ++i)
 		{
 			t = this.rasterList[i];
 			this.context.fillStyle = 'rgb(' + t.color.r + ',' + t.color.g + ',' + t.color.b + ')';
-			if(config.fillSeams)
-				this.context.strokeStyle = this.context.fillStyle;
-			this.context.beginPath();
-			this.context.moveTo(t.v1.x, t.v1.y);
-			this.context.lineTo(t.v2.x, t.v2.y);
-			this.context.lineTo(t.v3.x, t.v3.y);
-			this.context.lineTo(t.v1.x, t.v1.y);
-			this.context.fill();
-			if(config.fillSeams)
-				this.context.stroke();
+			// Handle points
+			if(t.p)
+			{
+				pointSize = (1 / t.zIndex) / 2;
+				this.context.fillRectangle(t.v1.x - pointSize,
+					t.v1.y - pointSize, pointSize * 2, pointSize * 2);
+			}
+			// Handle triangles
+			else
+			{
+				if(config.fillSeams)
+					this.context.strokeStyle = this.context.fillStyle;
+				this.context.beginPath();
+				this.context.moveTo(t.v1.x, t.v1.y);
+				this.context.lineTo(t.v2.x, t.v2.y);
+				this.context.lineTo(t.v3.x, t.v3.y);
+				this.context.lineTo(t.v1.x, t.v1.y);
+				this.context.fill();
+				if(config.fillSeams)
+					this.context.stroke();
+			}
 		}
 		this.rasterList = [];
 		this.trianglesProcessed = 0;
@@ -174,7 +191,7 @@ var js3d =
 	},
 	// Projects the passed-in vector to the screen. THIS MODIFIED THE
 	// PASSED-IN VECTOR!
-	projectPoint: function(v)
+	projectPointToScreen: function(v)
 	{
 		v.z = this.eyeDistance / v.z;
 		v.x = ((v.x * v.z) + 1) * this.halfWidth;
@@ -189,7 +206,7 @@ var js3d =
 			return;
 		if(v1.z >= this.farClip)
 			return;
-		this.projectPoint(v1);
+		this.projectPointToScreen(v1);
 		this.context.fillStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
 		this.context.fillRect(v1.x - 2, v1.y - 2, 4, 4);
 	},
@@ -209,13 +226,25 @@ var js3d =
 			v1.z = this.nearClip;
 		if(v2.z <= this.nearClip)
 			v2.z = this.nearClip;
-		this.projectPoint(v1);
-		this.projectPoint(v2);
+		this.projectPointToScreen(v1);
+		this.projectPointToScreen(v2);
 		this.context.strokeStyle = 'rgb(' + color.r + ',' + color.g + ',' + color.b + ')';
 		this.context.beginPath();
 		this.context.moveTo(v1.x, v1.y);
 		this.context.lineTo(v2.x, v2.y);
 		this.context.stroke();
+	},
+	// Project a point to the screen and rasterize it
+	projectPoint: function(color, v1)
+	{
+		v1 = this.cameraTranslatePoint(v1);
+		if(v1.z <= this.nearClip)
+			return;
+		if(v1.z >= this.farClip)
+			return;
+		var zIndex = v1.z;
+		this.projectPointToScreen(v1);
+		this.rasterizePoint(color, v1, zIndex);
 	},
 	// Project a triangle to the screen and rasterize it
 	projectTriangle: function(color, v1, v2, v3, firstPass)
@@ -290,9 +319,9 @@ var js3d =
 			v3.z = this.nearClip;
 
 		// Project the points to the screen and rasterize the triangle
-		this.projectPoint(v1);
-		this.projectPoint(v2);
-		this.projectPoint(v3);
+		this.projectPointToScreen(v1);
+		this.projectPointToScreen(v2);
+		this.projectPointToScreen(v3);
 		this.rasterizeTriangle(color, v1, v2, v3, zIndex);
 		
 		++this.trianglesRasterized;
