@@ -43,6 +43,7 @@ $(window).load(function()
 	player.rotate(Math.PI/2);
 	map.addEntity(player);
 	var ent = new Mobile(45, -25, 0, models.pyramidar, 3);
+	ent.rotate(Math.PI);
 	map.addEntity(ent);
 	//var ent = new Projectile(45, -55, 0, models.projectile);
 	//map.addEntity(ent);
