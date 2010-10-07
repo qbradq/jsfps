@@ -36,3 +36,9 @@ Projectile.prototype.collideWithWall = function()
 {
 	this.die();
 }
+Projectile.prototype.die = function()
+{
+	map.addEntity(new ParticleSystem(this.x, this.y, this.model.dieColor, 20,
+		6, 700, 0.0, 2));
+	Entity.prototype.die.call(this);
+}

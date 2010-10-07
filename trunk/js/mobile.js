@@ -30,5 +30,7 @@ Mobile.prototype.takeDamage = function(amount)
 }
 Mobile.prototype.die = function()
 {
+	map.addEntity(new ParticleSystem(this.x, this.y, this.model.dieColor, 100,
+		20, 1000, 0.0, 3));
 	map.removeEntity(this);
 }

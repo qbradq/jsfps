@@ -351,30 +351,34 @@ TileMap.prototype =
 		for(i = 0; i < this.entities.length; ++i)
 		{
 			ent = this.entities[i];
-			pyt = ent.y + ent.model.renderBounds.y;
-			pyb = pyt + ent.model.renderBounds.h;
-			pxl = ent.x + ent.model.renderBounds.x;
-			pxr = pxl + ent.model.renderBounds.w;
-			//alert(pyl + "," + pyt + " " + pyr + "," + pyb);
+			if(ent.model &&
+				ent.model.renderBounds)
+			{
+				pyt = ent.y + ent.model.renderBounds.y;
+				pyb = pyt + ent.model.renderBounds.h;
+				pxl = ent.x + ent.model.renderBounds.x;
+				pxr = pxl + ent.model.renderBounds.w;
+				//alert(pyl + "," + pyt + " " + pyr + "," + pyb);
 
-			// If all points are left of the left bound exclude it
-			if((pxl - fl.x1) * fl.dy - fl.dx * (pyt - fl.y1) < 0 &&
-				(pxl - fl.x1) * fl.dy - fl.dx * (pyb - fl.y1) < 0 &&
-				(pxr - fl.x1) * fl.dy - fl.dx * (pyt - fl.y1) < 0 &&
-				(pxr - fl.x1) * fl.dy - fl.dx * (pyb - fl.y1) < 0)
-				continue;
-			// Or if all points are right of the right bound exclude it
-			if((pxl - fr.x1) * fr.dy - fr.dx * (pyt - fr.y1) > 0 &&
-				(pxl - fr.x1) * fr.dy - fr.dx * (pyb - fr.y1) > 0 &&
-				(pxr - fr.x1) * fr.dy - fr.dx * (pyt - fr.y1) > 0 &&
-				(pxr - fr.x1) * fr.dy - fr.dx * (pyb - fr.y1) > 0)
-				continue;
-			// Or if all points are to the right of the far clipping plane
-			if((pxl - cp.x1) * cp.dy - cp.dx * (pyt - cp.y1) > 0 &&
-				(pxl - cp.x1) * cp.dy - cp.dx * (pyb - cp.y1) > 0 &&
-				(pxr - cp.x1) * cp.dy - cp.dx * (pyt - cp.y1) > 0 &&
-				(pxr - cp.x1) * cp.dy - cp.dx * (pyb - cp.y1) > 0)
-				continue;
+				// If all points are left of the left bound exclude it
+				if((pxl - fl.x1) * fl.dy - fl.dx * (pyt - fl.y1) < 0 &&
+					(pxl - fl.x1) * fl.dy - fl.dx * (pyb - fl.y1) < 0 &&
+					(pxr - fl.x1) * fl.dy - fl.dx * (pyt - fl.y1) < 0 &&
+					(pxr - fl.x1) * fl.dy - fl.dx * (pyb - fl.y1) < 0)
+					continue;
+				// Or if all points are right of the right bound exclude it
+				if((pxl - fr.x1) * fr.dy - fr.dx * (pyt - fr.y1) > 0 &&
+					(pxl - fr.x1) * fr.dy - fr.dx * (pyb - fr.y1) > 0 &&
+					(pxr - fr.x1) * fr.dy - fr.dx * (pyt - fr.y1) > 0 &&
+					(pxr - fr.x1) * fr.dy - fr.dx * (pyb - fr.y1) > 0)
+					continue;
+				// Or if all points are to the right of the far clipping plane
+				if((pxl - cp.x1) * cp.dy - cp.dx * (pyt - cp.y1) > 0 &&
+					(pxl - cp.x1) * cp.dy - cp.dx * (pyb - cp.y1) > 0 &&
+					(pxr - cp.x1) * cp.dy - cp.dx * (pyt - cp.y1) > 0 &&
+					(pxr - cp.x1) * cp.dy - cp.dx * (pyb - cp.y1) > 0)
+					continue;
+			}
 			// If we are still in the loop the entitie's bounding rectangle
 			// overlapps the view frustram, so add it to the list
 			this.pvsEntities.push(ent);
@@ -418,10 +422,10 @@ TileMap.prototype =
 		// x = (y - b) / m
 		for(i = 0; i < this.entities.length; ++i)
 		{
-			var reason = "none";
 			// Exclude the source entity
 			ent = this.entities[i];
-			if(ent == sourceEnt)
+			if(ent == sourceEnt ||
+				ent.doNotCollide)
 				continue;
 			
 			// Quick bounds exclusion
