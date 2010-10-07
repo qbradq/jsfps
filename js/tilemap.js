@@ -401,11 +401,11 @@ TileMap.prototype =
 		sl = sx + sourceEnt.model.bounds.x;
 		sr = sl + sourceEnt.model.bounds.w;
 		st = sy + sourceEnt.model.bounds.y;
-		sb = st + sourceEnt.model.bounds.h;
+		sb = st - sourceEnt.model.bounds.h;
 		sbl = vx < 0 ? sl + vx : sl;
 		sbr = vx < 0 ? sr : sr + vx;
-		sbt = vy < 0 ? st + vy : st;
-		sbb = vy < 0 ? sb : sb + vy;
+		sbt = vy < 0 ? st : st + vy;
+		sbb = vy < 0 ? sb + vy : sb;
 
 		// Line formula variables
 		if(vx != 0)
@@ -416,9 +416,9 @@ TileMap.prototype =
 		
 		// y = m * x + b
 		// x = (y - b) / m
-		
 		for(i = 0; i < this.entities.length; ++i)
 		{
+			var reason = "none";
 			// Exclude the source entity
 			ent = this.entities[i];
 			if(ent == sourceEnt)
@@ -429,19 +429,19 @@ TileMap.prototype =
 			el = ent.x + bounds.x;
 			er = el + bounds.w;
 			et = ent.y + bounds.y;
-			eb = et + bounds.h;
+			eb = et - bounds.h;
 			if(sbr < el ||
 				sbl > er ||
-				sbb < et ||
-				sbt > eb)
+				sbb > et ||
+				sbt < eb)
 				continue;
-			
+
 			// East-moving test
 			if(vx > 0)
 			{
 				ofsY = (m * el + b) - sy;
-				if(sb + ofsY >= et &&
-					st + ofsY <= eb)
+				if(sb + ofsY <= et &&
+					st + ofsY >= eb)
 				{
 					outVar = {ent: ent, dir: "E", x: el, y: sy + ofsY, pen: sr - el};
 					hit = true;
@@ -451,8 +451,9 @@ TileMap.prototype =
 			else if(vx < 0)
 			{
 				ofsY = (m * er + b) - sy;
-				if(sb + ofsY >= et &&
-					st + ofsY <= eb)
+				//alert(ofsY + ": " + sb + "+" + ofsY + " >= " + et + " && " + st + "+" + ofsY + " <= " + eb);
+				if(sb + ofsY <= et &&
+					st + ofsY >= eb)
 				{
 					outVar = {ent: ent, dir: "W", x: er, y: sy + ofsY, pen: er - sl};
 					hit = true;
@@ -464,20 +465,20 @@ TileMap.prototype =
 				if(vx == 0)
 					ofsX = 0;
 				else
-					ofsX = ((eb - b) / m) - sx;
+					ofsX = ((et - b) / m) - sx;
 				if(sl + ofsX <= er &&
 					sr + ofsX >= el)
 				{
 					if(hit == false ||
 						outVar.pen > st - eb)
 					{
-						outVar = {ent: ent, dir: "S", x: sx + ofsY, y: eb};
+						outVar = {ent: ent, dir: "S", x: sx + ofsY, y: et};
 					}
 					hit = true;
 				}
 			}
 			// North-moving test
-			if(vy > 0)
+			else if(vy > 0)
 			{
 				if(vx == 0)
 					ofsX = 0;
@@ -489,7 +490,7 @@ TileMap.prototype =
 					if(hit == false ||
 						outVar.pen > eb - st)
 					{
-						outVar = {ent: ent, dir: "N", x: sx + ofsY, y: et};
+						outVar = {ent: ent, dir: "N", x: sx + ofsY, y: eb};
 					}
 					hit = true;
 				}
