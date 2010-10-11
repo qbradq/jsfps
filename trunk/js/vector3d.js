@@ -67,6 +67,18 @@ Vector3D.prototype =
 		if(theta > 1) return Math.acos(1);
 		return Math.acos(theta);
 	},
+	worldAngle: function()
+	{
+		var mod = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+		if(mod === 0) return null;
+		var theta = this.z / mod;
+		if(theta < -1) return Math.acos(-1);
+		if(theta > 1) return Math.acos(1);
+		var act = Math.acos(theta);
+		if(this.x < 0)
+			act = Math.PI + (Math.PI - act);
+		return act;
+	},
 	distanceFrom: function(b)
 	{
 		var dx = b.x - this.x, dy = b.y - this.y, dz = b.z - this.z;
@@ -85,4 +97,3 @@ Vector3D.prototype =
 		return out;
 	}
 };
-
