@@ -15,7 +15,9 @@ Mobile.prototype.collideWithEntity = function(entHit)
 	switch(entHit.ent.type)
 	{
 		case "Projectile":
-			this.takeDamage(entHit.ent.damage);
+			entHit.source = entHit.ent;
+			entHit.ent = this;
+			entHit.source.collideWithEntity(entHit);
 			break;
 		case "Mobile":
 			Entity.prototype.collideWithEntity.call(this, entHit);

@@ -1,4 +1,4 @@
-function Projectile(x, y, rot, model)
+function Projectile(x, y, rot, model, shooter)
 {
 	this.x = x;
 	this.y = y;
@@ -13,6 +13,7 @@ function Projectile(x, y, rot, model)
 	this.vx = dVect.x;
 	this.vy = dVect.z;
 	this.damage = 1;
+	this.shooter = shooter;
 }
 Projectile.prototype = new Entity();
 Projectile.prototype.type = "Projectile";
@@ -24,6 +25,9 @@ Projectile.prototype.update = function()
 }
 Projectile.prototype.collideWithEntity = function(entHit)
 {
+	if(entHit.ent == this.shooter)
+		return;
+	
 	switch(entHit.ent.type)
 	{
 		case "Mobile":

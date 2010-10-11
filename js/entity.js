@@ -7,7 +7,7 @@ function Entity(x, y, rot, model)
 	this.rot = rot;
 	this.model = model;
 	this.moveSpeed = 50;
-	this.attackDelayMs = 200;
+	this.attackDelayMs = 50;
 	this.lastAttackTime = 0;
 }
 
@@ -32,9 +32,9 @@ Entity.prototype =
 		if(this.lastAttackTime + this.attackDelayMs > thisFrameTime)
 			return;
 		this.lastAttackTime = thisFrameTime;
-		var pPos = new Vector3D(0, 0, 7);
+		var pPos = new Vector3D(0, 0, 0.01);
 		pPos = pPos.yRotate(-this.rot, pPos);
-		var p = new Projectile(pPos.x + this.x, pPos.z + this.y, this.rot, models.projectile);
+		var p = new Projectile(pPos.x + this.x, pPos.z + this.y, this.rot, models.projectile, this);
 		map.addEntity(p);
 	},
 	render: function()
