@@ -23,6 +23,7 @@ var js3d =
 	trianglesDrawn: 0,
 	twoPI: Math.PI * 2,
 	piOverTwo: Math.PI / 2,
+	piOverFour: Math.PI / 4,
 	// Initialize the 3D renderer
 	init: function()
 	{

@@ -506,7 +506,6 @@ TileMap.prototype =
 		return hit;
 	},
 	// Trace a line segment and return what entities it hits, if any.
-	// WORKING!!!
 	lineHitsEntity: function(sourceEnt, x1, y1, x2, y2, out)
 	{
 		var m, b, i;
