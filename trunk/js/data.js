@@ -92,7 +92,7 @@ var models =
 		bounds: new BoundingBox(-3, 3, 6, 6),
 		dieColor: Color.blue
 	},
-	projectile:
+	projectileOld:
 	{
 		points: [
 			V(-0.5,-3.75,-0.25),	V(0.5,-3.75,-0.25),	V(0,-4.25,-0.25),	V(0,-4,0.75)
@@ -103,12 +103,23 @@ var models =
 		bounds: new BoundingBox(-0.25, -0.25, 0.5, 1),
 		dieColor: Color.red
 	},
+	projectile:
+	{
+		points: [
+			V(-0.25,-3.75,2.75),	V(0.25,-3.75,2.75),	V(0,-4.25,2.75),	V(0,-4,-0.25)
+		],
+		faces: [
+			Color.yellow,0,1,2,		Color.yellow,0,2,3,	Color.yellow,1,3,2,	Color.yellow,0,3,1
+		],
+		bounds: new BoundingBox(-0.25, -0.25, 0.5, 3),
+		dieColor: Color.yellow
+	},
 	pyramidar:
 	{
 		points: [
-			V(-4,0,4),		V(-4,0,-4),		V(4,0,-4),		V(4,0,4),
+			V(-3,0,3),			V(-3,0,-3),			V(3,0,-3),			V(3,0,3),
 			V(0,-4,0),
-			V(-2,-6,2),		V(-2,-6,-2),	V(2,-6,-2),		V(2,-6,2),
+			V(-1.5,-6,1.5),		V(-1.5,-6,-1.5),	V(1.5,-6,-1.5),		V(1.5,-6,1.5),
 			V(0,-8,0)
 		],
 		faces: [

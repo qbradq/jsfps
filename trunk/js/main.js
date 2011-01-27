@@ -45,6 +45,41 @@ $(window).load(function()
 	var ent = new AIMobile(45, -25, 0, models.pyramidar, 3);
 	ent.rotate(Math.PI);
 	map.addEntity(ent);
+	
+	/** /
+	map.addEntity(new AIMobile( 5, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(10, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(15, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(20, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(25, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(30, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(35, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(40, -100, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile( 5, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(10, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(15, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(20, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(25, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(30, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(35, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(40, -105, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile( 5, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(10, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(15, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(20, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(25, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(30, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(35, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(40, -110, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile( 5, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(10, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(15, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(20, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(25, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(30, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(35, -115, 0, models.pyramidar, 3));
+	map.addEntity(new AIMobile(40, -115, 0, models.pyramidar, 3));
+	/**/
 	//var ent = new Projectile(45, -55, 0, models.projectile);
 	//map.addEntity(ent);
 	//var pTest = new ParticleSystem(45, -65, Color.white, 10, 6, 300, 0.0);

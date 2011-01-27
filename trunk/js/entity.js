@@ -17,6 +17,10 @@ Entity.prototype =
 	rotate: function(amount)
 	{
 		this.rot += amount;
+		while(this.rot > js3d.twoPI)
+			this.rot -= js3d.twoPI;
+		while(this.rot < 0)
+			this.rot += js3d.twoPI;
 	},
 	move: function(x, y)
 	{
