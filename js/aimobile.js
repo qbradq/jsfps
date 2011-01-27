@@ -10,6 +10,7 @@ function AIMobile(x, y, rot, model, hp)
 	this.aiState = "watch";
 	this.aiParams = {};
 	this.rotateSpeed = js3d.twoPi;
+	this.moveSpeed = 35;
 }
 AIMobile.prototype = new Mobile();
 AIMobile.prototype.maxViewDistance = 130;
@@ -22,12 +23,7 @@ AIMobile.prototype.update = function()
 }
 AIMobile.prototype.lookAngleToEntity = function(ent)
 {
-	var lookVector = new Vector3D(0, 0, 1);
-	lookVector.yRotate(this.rot, lookVector);
-	var playerPositionVector = new Vector3D(ent.x - this.x, 0,
-		ent.y - this.y);
-	$("#debug").text(lookVector.angleFrom(playerPositionVector));
-	return lookVector.angleFrom(playerPositionVector);
+	return Math.abs((new Vector3D(ent.x - this.x, 0, ent.y - this.y).worldAngle()) - this.rot);
 }
 AIMobile.prototype.canSeeEntity = function(ent, checkFoV)
 {
@@ -52,9 +48,17 @@ AIMobile.prototype.turnTowardEntity = function(ent)
 {
 	// Find the absolute angle of rotation between us and this entity
 	var toRotate = (new Vector3D(ent.x - this.x, 0, ent.y - this.y).worldAngle()) - this.rot;
-	this.rot += toRotate;	
+	var absRotate = Math.abs(toRotate);
+	var maxRotate = this.rotateSpeed * frameTime;
+	if(absRotate > maxRotate)
+		toRotate *= absRotate / maxRotate;
+	this.rotate(toRotate);
 }
-// Watch for the player
+AIMobile.prototype.moveTowardPoint = function(x, y)
+{
+	this.x = x;
+	this.y = y;
+}
 AIMobile.prototype._aiwatch = function()
 {
 	if(!this.canSeeEntity(player, true))
@@ -75,7 +79,11 @@ AIMobile.prototype._aiattack = function()
 		this.aiState = "follow";
 		return;
 	}
-	
+
+	// If we can see the player, record his location	
+	this.aiParams.tx = player.x;
+	this.aiParams.ty = player.y;
+
 	// Are we close enough in rotation?
 	var lookAngle = this.lookAngleToEntity(player);
 	if(lookAngle > 0.1)
@@ -89,5 +97,15 @@ AIMobile.prototype._aiattack = function()
 }
 AIMobile.prototype._aifollow = function()
 {
-	throw new Error("AI Follow Not Implemented");
+	// Can we see the player now?
+	if(this.canSeeEntity(player))
+	{
+		this.aiParams.tx = player.x;
+		this.aiParams.ty = player.y;
+		this.aiState = "attack";
+		return;
+	}
+	
+	// Try to move toward the last location we knew he was at
+	this.moveTowardPoint(this.aiParams.tx, this.aiParams.ty);
 }

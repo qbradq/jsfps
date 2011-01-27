@@ -6,13 +6,13 @@ function Projectile(x, y, rot, model, shooter)
 	this.lastY = y;
 	this.rot = rot;
 	this.model = model;
-	this.moveSpeed = 150;
+	this.moveSpeed = 250;
 	var dVect = new Vector3D(0, 0, 1);
 	dVect.yRotate(-this.rot, dVect);
 	dVect = dVect.multiply(this.moveSpeed);
 	this.vx = dVect.x;
 	this.vy = dVect.z;
-	this.damage = 1;
+	this.damage = 2;
 	this.shooter = shooter;
 }
 Projectile.prototype = new Entity();
